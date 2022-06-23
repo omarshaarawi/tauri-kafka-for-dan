@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Document</title>
+</head>
+
+<body>
+<h3>Producer</h3>
+<div>
+  <button id="produce-btn">Produce</button>
+  <div id="response"></div>
+</div>
+<h3>Consumer</h3>
+<div>
+  <button id="consume-btn">Consume</button>
+  <button id="stop-consume-btn">Stop</button>
+  <table id="table">
+    <thead>
+    <tr>
+      <th>key</th>
+      <th>payload</th>
+      <th>topic</th>
+      <th>partition</th>
+      <th>offset</th>
+      <th>timestamp</th>
+    </tr>
+    </thead>
+    <tbody id="body"></tbody>
+
+  </table>
+</div>
+<h3>List Topics</h3>
+<div>
+  <button id="list-btn">Go</button>
+  <div id="topics"></div>
+</div>
+
+
+<script>
+
+  const produceButton = document.querySelector('#produce-btn')
+  const consumeButton = document.querySelector('#consume-btn')
+  const stopConsumeButton = document.querySelector('#stop-consume-btn')
+
+  const responseContainer = document.querySelector('#response')
+  const topicContainer = document.querySelector('#topics')
+  const listTopicsButton = document.querySelector('#list-btn')
+
+  const invoke = window.__TAURI__.invoke
+
+  function updateResponse(response) {
+    responseContainer.innerText =
+            typeof response === 'string' ? response : JSON.stringify(response)
+  }
+
+  function updateTopicList(response) {
+    topicContainer.innerText = Object.values(response).join("\n")
+  }
+
+  produceButton.addEventListener('click', () => {
+    invoke('send_message', {
+      numOfMessages: 1
+    })
+            .then(updateResponse)
+            .catch(updateResponse)
+  })
+
+  consumeButton.addEventListener('click', () => {
+    invoke('consume')
+            .then(updateResponse)
+            .catch(updateResponse)
+  })
+
+
+  stopConsumeButton.addEventListener('click', () => {
+    invoke('stop_consumer')
+  })
+
+  listTopicsButton.addEventListener('click', () => {
+    invoke('list_topics')
+            .then(updateTopicList)
+            .catch(updateTopicList)
+  })
+
+
+</script>
+</body>
+</html>
